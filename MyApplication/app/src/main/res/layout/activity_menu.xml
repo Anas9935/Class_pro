@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Activities.MenuActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/myrecyclerViewMenu"
+            >
+
+        </android.support.v7.widget.RecyclerView>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Proceed"
+            android:id="@+id/buttonproceed"
+            />
+    </LinearLayout>
+    <FrameLayout
+        android:layout_width="300dp"
+        android:layout_height="450dp"
+        android:id="@+id/frameLayoutMenu"
+        android:scaleType="centerInside"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:elevation="5dp"
+    />
+</FrameLayout>
+
+
