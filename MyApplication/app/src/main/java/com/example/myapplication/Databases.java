@@ -3,21 +3,38 @@ package com.example.myapplication;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.textclassifier.TextLinks;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.myapplication.data.Contract_class;
 import com.example.myapplication.data.SQL_HELPER;
 import com.example.myapplication.data.dbHelper;
+import com.example.myapplication.objects.CommonListObject;
+import com.example.myapplication.objects.menuitem;
+
+import org.json.JSONObject;
+
+import java.io.StringReader;
+import java.util.ArrayList;
 
 public class Databases extends AppCompatActivity {
 Button b1,b2,b3,b4,b5,b6;
 TextView tv;
     dbHelper helper;
+    RequestQueue queue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,33 +50,35 @@ TextView tv;
         tv=findViewById(R.id.textview);
         tv.setText("");
         helper=new dbHelper(this);
+        queue= Volley.newRequestQueue(this);
         b4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tv.setText("");
-             SQLiteDatabase db=helper.getReadableDatabase();
-                String sel=SQL_HELPER.select(Contract_class.entry.TABLE_MENU);
-                Cursor table=db.rawQuery(sel,null);
-                if(table.getCount()==0){
-                    Log.e("this","Empty table count="+table.getCount());
-                }
-                int idIndex=table.getColumnIndex(Contract_class.entry.MENU_ID);
-                int nameIndex=table.getColumnIndex(Contract_class.entry.MENU_NAME);
-                int vegIndex=table.getColumnIndex(Contract_class.entry.MENU_VEG);
-                int priceIndex=table.getColumnIndex(Contract_class.entry.MENU_PRICE);
-                int infoIndex=table.getColumnIndex(Contract_class.entry.MENU_INFO);
-                int offerIndex=table.getColumnIndex(Contract_class.entry.MENU_OFFER);
-                table.moveToFirst();
-                for(int i=0;i<table.getCount();i++){
-                    tv.append(String.valueOf(table.getInt(idIndex))+",");
-                    tv.append(table.getString(nameIndex)+",");
-                    tv.append(String.valueOf(table.getInt(vegIndex))+",");
-                    tv.append(String.valueOf(table.getInt(priceIndex))+",");
-                    tv.append(table.getString(infoIndex)+",");
-                    tv.append(String.valueOf(table.getInt(offerIndex))+"\n");
-                    table.moveToNext();
-                }
-                table.close();
+                tv.setText("--");
+               // String q="_id,name,veg,price,info,offer";
+                String url="http://10.0.2.2/Project/query.php?query=from%20foodmenu";
+
+                JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.e("this", "onResponse: "+response.toString() );
+                        CommonListObject obj=NetworkUtils.extractFromJson(response.toString(),0);
+                        ArrayList<menuitem> list=obj.getMenuitem();
+                        for( int i=0;i<list.size();i++){
+                            menuitem current=list.get(i);
+                            tv.append(current.getName()+"  "+current.getInfo()+"   "+current.getOffer()+"   "+current.getPrice()+"   "+current.getPrice()+"\n");
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
+                        queue.stop();
+                    }
+                });
+
+                queue.add(jreq);
+
             }
         });
         b1.setOnClickListener(new View.OnClickListener() {
@@ -163,4 +182,6 @@ TextView tv;
             }
         });
     }
+
+
 }

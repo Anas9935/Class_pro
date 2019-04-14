@@ -16,7 +16,10 @@ import android.widget.Toast;
 import com.example.myapplication.R;
 import com.example.myapplication.objects.paymentObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.ViewHolder>{
     private Context context;
@@ -57,11 +60,26 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.ViewHold
         viewHolder.uid.setText(String.valueOf(current.getUid()));
         viewHolder.name.setText(current.getName());
         viewHolder.amt.setText(String.valueOf(current.getAmt()));
-        viewHolder.status.setText(String.valueOf(current.getStatus()));
-        viewHolder.mode.setText(String.valueOf(current.getMode()));
-        viewHolder.time.setText(current.getTime());
-
-
+        switch (current.getStatus()){
+            case 0:viewHolder.status.setText("unPaid");
+                break;
+            case 1:viewHolder.status.setText("Paid");
+                break;
+            case 2:viewHolder.status.setText("Partial");
+                break;
+        }
+        // status.setText(String.valueOf(current.getStatus()));
+        switch (current.getMode()){
+            case 0:viewHolder.mode.setText("Cash");
+                break;
+            case 1:viewHolder.mode.setText("Card");
+                break;
+            case 2:viewHolder.mode.setText("Paytm");
+                break;
+        }
+        DateFormat format=new SimpleDateFormat("dd-mm-yyyy");
+        Date date=new Date(current.getTime()*1000);
+        viewHolder.time.setText(format.format(date));
     }
 
     @Override

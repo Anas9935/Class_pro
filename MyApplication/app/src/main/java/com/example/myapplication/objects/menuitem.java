@@ -1,21 +1,37 @@
 package com.example.myapplication.objects;
 
 public class menuitem {
+    private int id;
     private int imgid;
     private String name;
     private int veg;    //0-veg& 1-Nonveg
     private int price;
     private String info;
     private int offer;      //in percent
+    private int qty;
 
-   public menuitem(int img,String namearg,int vegArg,int priceArg,String infoArg,int offerArg){
+   public menuitem(int id,int img,String namearg,int vegArg,int priceArg,String infoArg,int offerArg){
+   this.id=id;
    imgid=img;
    name=namearg;
    veg=vegArg;
    price=priceArg;
    info=infoArg;
    offer=offerArg;
+   qty=0;
    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setQty(int qty) {
+        this.qty = qty;
+    }
+
+    public int getQty() {
+        return qty;
+    }
 
     public String getName() {
         return name;

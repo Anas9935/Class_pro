@@ -19,6 +19,17 @@
         <item>Card</item>
         <item>Paytm</item>
     </string-array>
-
+    <string-array name="timeSlot">
+        <item>Choose Time</item>
+        <item>9:00–10:30</item>
+        <item>10:30–12:00</item>
+        <item>12:00–13:30</item>
+        <item>13:30–15:00</item>
+        <item>15:00–16:30</item>
+        <item>16:30–18:00</item>
+        <item>18:00–19:30</item>
+        <item>19:30–21:00</item>
+        <item>21:00–22:30</item>
+    </string-array>
 
 </resources>

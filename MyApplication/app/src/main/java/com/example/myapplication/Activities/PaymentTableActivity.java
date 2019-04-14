@@ -11,12 +11,25 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.myapplication.Adapters.PaymentAdapter;
+import com.example.myapplication.NetworkUtils;
 import com.example.myapplication.R;
 import com.example.myapplication.data.Contract_class;
 import com.example.myapplication.data.SQL_HELPER;
 import com.example.myapplication.data.dbHelper;
+import com.example.myapplication.objects.CommonListObject;
+import com.example.myapplication.objects.menuitem;
 import com.example.myapplication.objects.paymentObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -24,8 +37,7 @@ public class PaymentTableActivity extends AppCompatActivity {
 RecyclerView rview;
 ArrayList<paymentObject> list;
 RecyclerView.Adapter adapter;
-
-dbHelper helper;
+RequestQueue queue;
 @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,48 +49,73 @@ dbHelper helper;
         RecyclerView.LayoutManager mLayout=new LinearLayoutManager(this);
         rview.setLayoutManager(mLayout);
         rview.setAdapter(adapter);
-        helper=new dbHelper(this);
-   //     recyclerViewOnClickListener();
-    //TODO 4 to apply onitemclickListener on the recycler views to provide the capabilities of updating database on run time
         populateList();
     }
 
 
     public void populateList(){
-        SQLiteDatabase db=helper.getReadableDatabase();
-        String sel= SQL_HELPER.select(Contract_class.entry.TABLE_PAYMENT);
-        Cursor table=db.rawQuery(sel,null);
-       // int nameindex=table.getColumnIndex(Contract_class.entry.USER_NAME);
-        int idindex=table.getColumnIndex(Contract_class.entry.PAYMENT_ID);
-        int uidindex=table.getColumnIndex(Contract_class.entry.PAYMENT_USER_ID);
-        int totalindex=table.getColumnIndex(Contract_class.entry.PAYMENT_TOTAL);
-        int modeindex=table.getColumnIndex(Contract_class.entry.PAYMENT_MODE);
-        int statusindex=table.getColumnIndex(Contract_class.entry.PAYMENT_STATUS);
-        int timeindex=table.getColumnIndex(Contract_class.entry.PAYMENT_TIME);
 
-        table.moveToFirst();
-        int id,uid,amt,status,mode;
-        String name,time;
-        if(table.getCount()==0){
-            Log.e("this","empty");
-        }else
-        for(int i=0;i<table.getCount();i++){
-            id=table.getInt(idindex);
-            uid=table.getInt(uidindex);
-            //name=
-            amt=table.getInt(totalindex);
-            status=table.getInt(statusindex);
-            mode=table.getInt(modeindex);
-            String selectionName=SQL_HELPER.select(Contract_class.entry.TABLE_USERS,Contract_class.entry.USER_NAME,uid);
-            Cursor nameTable=db.rawQuery(selectionName,null);
-            int nameindex=nameTable.getColumnIndex(Contract_class.entry.USER_NAME);
-            nameTable.moveToFirst();
-            name=nameTable.getString(nameindex);
-            list.add(new paymentObject(id,uid,amt,status,mode,name,"1234567"));
-            nameTable.close();
-            //TODO 3 solve how to get timestamp from a cursor
-            table.moveToNext();
-        }
-        table.close();
+  queue= Volley.newRequestQueue(PaymentTableActivity.this);
+  String url="http://10.0.2.2/Project/allPayment.php";
+        JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("resp", "onResponse: "+response.toString() );
+                try {
+                    JSONObject base=new JSONObject(response.toString());
+                    JSONArray array=base.getJSONArray("data");
+                    for( int i=0;i<array.length();i++){
+                        JSONObject current=array.getJSONObject(i);
+                        int id=current.getInt("_id");
+                        int uid=current.getInt("_uid");
+                        int amount=current.getInt("tot_amt");
+                        int mode=current.getInt("mode");
+                        int status=current.getInt("status");
+                        long time=current.getInt("pTime");
+                        paymentObject obj=new paymentObject(id,uid,amount,status,mode,null,time);
+                        populateName(uid,obj);
+                        list.add(obj);
+                        adapter.notifyDataSetChanged();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(PaymentTableActivity.this,"Password Mismatch",Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
+                queue.stop();
+            }
+        });
+        queue.add(jreq);
     }
+    private void populateName(int uid,final paymentObject object){
+        String url = "http://10.0.2.2/Project/findUser.php?query="+uid;          //search for names of the user where uid=?
+        JsonObjectRequest jreq = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONObject base = new JSONObject(response.toString());
+                    JSONArray array = base.getJSONArray("data");
+                    String name = array.getJSONObject(0).getString("user_name");
+                    object.setName(name);
+                    adapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(PaymentTableActivity.this, "Password Mismatch", Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("error", "onErrorResponse: Eroorr" + error.getMessage());
+                queue.stop();
+            }
+        });
+        queue.add(jreq);
+    }
+
+
 }

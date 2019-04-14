@@ -13,12 +13,25 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.myapplication.Adapters.staffListAdapter;
+import com.example.myapplication.NetworkUtils;
 import com.example.myapplication.R;
 import com.example.myapplication.data.Contract_class;
 import com.example.myapplication.data.SQL_HELPER;
 import com.example.myapplication.data.dbHelper;
+import com.example.myapplication.objects.CommonListObject;
 import com.example.myapplication.objects.StaffObject;
+import com.example.myapplication.objects.menuitem;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -27,7 +40,9 @@ ListView lv;
 ArrayList<StaffObject> list;
 ArrayAdapter<StaffObject> adapter;
 
-dbHelper helper;
+//dbHelper helper;
+RequestQueue queue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +52,7 @@ dbHelper helper;
         list=new ArrayList<>();
         adapter=new staffListAdapter(this,list);
         lv.setAdapter(adapter);
-        helper=new dbHelper(this);
+ //       helper=new dbHelper(this);
         populateListView();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -52,35 +67,40 @@ dbHelper helper;
 
     }
     public void populateListView(){
-        SQLiteDatabase db=helper.getReadableDatabase();
-        try{
-        String selecting= SQL_HELPER.select(Contract_class.entry.TABLE_STAFF);
-        Cursor staffTable=db.rawQuery(selecting,null);
-        try{if(staffTable.getCount()==0){
-            Toast.makeText(this, "Not any staffs yet", Toast.LENGTH_SHORT).show();
-        }else{
-            int uidindex=staffTable.getColumnIndex(Contract_class.entry.STAFF_USER_ID);
-            int idindex=staffTable.getColumnIndex(Contract_class.entry.STAFF_ID);
-            int nameindex=staffTable.getColumnIndex(Contract_class.entry.STAFF_FULL_NAME);
-            int contactindex=staffTable.getColumnIndex(Contract_class.entry.STAFF_CONTACT_NUMBER_1);
-            staffTable.moveToFirst();
-            for( int i=0;i<staffTable.getCount();i++) {
-                int uid=staffTable.getInt(uidindex);
-                String name = staffTable.getString(nameindex);
-                int id = staffTable.getInt(idindex);
-                Long contact = Long.valueOf(staffTable.getInt(contactindex));
-                list.add(new StaffObject(id,uid, name, contact));
-                staffTable.moveToNext();
+
+       queue= Volley.newRequestQueue(StaffListActivity.this);
+       String url="http://10.0.2.2/Project/all_staff.php";       //select * from stafftable
+        JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("this", "onResponse: "+response.toString() );
+                try {
+                    JSONObject base=new JSONObject(response.toString());
+                    JSONArray array=base.getJSONArray("data");
+                    for( int i=0;i<array.length();i++){
+                        JSONObject current=array.getJSONObject(i);
+                        int id=current.getInt("_id");
+                        int uid=current.getInt("_uid");
+                        String name=current.getString("full_name");
+                        long contact=current.getLong("contact1");
+                        StaffObject obj=new StaffObject(id,uid,name,contact);
+                        list.add(obj);
+                    }
+                    adapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             }
-        }
-        }catch (IndexOutOfBoundsException e){
-            Log.e("Thisindex",e.getLocalizedMessage());
-        }
-        staffTable.close();
-        adapter.notifyDataSetChanged();
-    }catch (SQLException e){
-            Log.e("stafflist",e.getLocalizedMessage());
-        }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
+                queue.stop();
+            }
+        });
+
+        queue.add(jreq);
 
     }
 

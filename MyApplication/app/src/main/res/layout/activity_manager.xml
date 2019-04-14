@@ -36,4 +36,5 @@
         android:text="Add menu items"
         android:id="@+id/manager_add_menu_items"
         />
+
 </LinearLayout>

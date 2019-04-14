@@ -34,7 +34,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="25"
+                    android:text="uid"
                     android:id="@+id/paymentuserid"
                     />
             </LinearLayout>
@@ -57,6 +57,13 @@
                     android:layout_weight="1"
                     android:text="STATUS"
                     android:id="@+id/paymentStatus"
+                    />
+                <Button
+                    android:id="@+id/payment_savebtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="save"
+                    android:visibility="gone"
                     />
             </LinearLayout>
             <LinearLayout

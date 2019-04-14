@@ -37,5 +37,17 @@
         android:text="LOGIN PAGE"
         android:id="@+id/loginbtn"
         />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Receptionist"
+        android:id="@+id/recBtn"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cook"
+        android:id="@+id/manager_cook"
+        />
 
 </LinearLayout>

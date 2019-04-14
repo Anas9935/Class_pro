@@ -13,6 +13,7 @@ import com.example.myapplication.R;
 public class ManagerActivity extends AppCompatActivity {
 Button staff,newStaff,attendence,payment,addMenu;
 StaffListDialogFragment dialog;
+int uid;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +25,7 @@ StaffListDialogFragment dialog;
         payment=(Button)findViewById(R.id.payment);
         addMenu=findViewById(R.id.manager_add_menu_items);
         Intent intent=getIntent();
-        int uid=intent.getIntExtra("uid",0);
+        uid=intent.getIntExtra("uid",0);
         staff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,5 +64,6 @@ StaffListDialogFragment dialog;
                 startActivity(intent);
             }
         });
+
     }
 }
