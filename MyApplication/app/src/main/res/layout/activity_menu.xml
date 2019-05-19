@@ -27,6 +27,8 @@
             android:id="@+id/buttonproceed"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="16dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
             />
 
 </RelativeLayout>

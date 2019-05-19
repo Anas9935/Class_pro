@@ -114,11 +114,11 @@ public class Receptionist_activity extends AppCompatActivity {
                 long time=System.currentTimeMillis()/1000;
                 //TODO insert data in the payment table with data name,null,tot_amt,spinnerId,time
                 int listsize=list.size();
-                paymentObject newObj=new paymentObject(list.get(listsize-1).getId()+1,-1,tot_amt,1,spinnerid,name,time);
+                paymentObject newObj=new paymentObject(list.get(listsize-1).getId()+1,-1,tot_amt,1,spinnerid,"Custom",time);
                 list.add(newObj);
                 adapter.notifyDataSetChanged();
                 queue=Volley.newRequestQueue(Receptionist_activity.this);
-                String url="";
+                String url="http://10.0.2.2/Project/insertPayment.php?_uid="+null+"&tot_amt="+tot_amt+"&mode="+spinnerid+"&status="+1+"&pTime="+time;
                 JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -265,16 +265,25 @@ public class Receptionist_activity extends AppCompatActivity {
         builder.create().show();
     }
     private void insertInAttendence(int id){
+        final int[] pres = new int[1];
+        final int[] abs = new int[1];
+        final int[] sal = new int[1];
+        final int[] totSal=new int[1];
+        //getting data from the atterndencetable where _uid=?
         queue=Volley.newRequestQueue(Receptionist_activity.this);
-        String url="";      //query of the updation in attendence table for user of _uid=?
+        String url="http://10.0.2.2/Project/findAttendence.php?_id="+id;
         //TODO code for insertion the data
         JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
                     JSONObject base=new JSONObject(response.toString());
-                    String message=base.getString("message");
-                    Toast.makeText(Receptionist_activity.this,"attendence done Successfully.", Toast.LENGTH_SHORT).show();
+                    JSONArray array=base.getJSONArray("data");
+                    JSONObject obj=array.getJSONObject(0);
+                    pres[0] =obj.getInt("presence");
+                    abs[0] =obj.getInt("absent");
+                    sal[0] =obj.getInt("salary_upto_now");
+                    totSal[0]=obj.getInt("Salary");
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -289,12 +298,39 @@ public class Receptionist_activity extends AppCompatActivity {
             }
         });
         queue.add(jreq);
+
+        //updation of attendencelist where _id
+        queue=Volley.newRequestQueue(Receptionist_activity.this);
+        int salary=sal[0]+totSal[0]/30;
+        String url1="http://1.0.2.2/updateAttendencePres.php?_id="+id+"&pres="+pres[0]+1+"&sal="+salary;      //query of the updation in attendence table for user of _uid=?
+        //TODO code for updation the data
+        JsonObjectRequest jreq1=new JsonObjectRequest(Request.Method.GET, url1, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONObject base=new JSONObject(response.toString());
+                    String message=base.getString("message");
+                    Toast.makeText(Receptionist_activity.this,"Attendence Successfully.", Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(Receptionist_activity.this,"Password Mismatch",Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
+                queue.stop();
+            }
+        });
+        queue.add(jreq1);
         Toast.makeText(Receptionist_activity.this,"Attendence done",Toast.LENGTH_LONG).show();
     }
 
     private void notifyCook(String food,String tables){
         //inserting data in the cooktable
-        String url="";      //insert into cookTable with food anf tables;
+        String url="http://10.0.2.2/Project/insertCook.php?foodSel="+food+"&TableSel="+tables;      //insert into cookTable with food anf tables;
         queue=Volley.newRequestQueue(Receptionist_activity.this);
         JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override

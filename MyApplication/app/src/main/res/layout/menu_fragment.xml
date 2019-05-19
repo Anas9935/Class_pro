@@ -213,4 +213,10 @@
         android:textSize="20sp"
         android:text="Your Bill is-"
         />
+    <Spinner
+        android:id="@+id/menu_payment_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/menu_totAmt"
+        />
 </RelativeLayout>

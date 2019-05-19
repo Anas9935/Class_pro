@@ -38,13 +38,14 @@ int uid;
         lv=findViewById(R.id.cook_lv);
         list=new ArrayList<>();
         adapter=new cookAdapter(this,list);
+        lv.setAdapter(adapter);
 
         uid=getIntent().getIntExtra("uid",0);
         populateList();
     }
     private void populateList(){
         queue= Volley.newRequestQueue(CookActivity.this);
-        String url="";          //select * from cookTable;
+        String url="http://10.0.2.2/Project/all_cook.php";          //select * from cookTable;
         JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -55,10 +56,11 @@ int uid;
                     for( int i=0;i<array.length();i++){
                         JSONObject current=array.getJSONObject(i);
                         int id=current.getInt("_id");
-                        String table=current.getString("table_sel");
-                        String food=current.getString("food_sel");
+                        String table=current.getString("TableSel");
+                        String food=current.getString("foodSel");
                         cookObject object=new cookObject(id,food,table);
                         list.add(object);
+                      //  Log.e("this", "onResponse: "+object.getFoodItem() );
                         adapter.notifyDataSetChanged();
                     }
                 } catch (JSONException e) {

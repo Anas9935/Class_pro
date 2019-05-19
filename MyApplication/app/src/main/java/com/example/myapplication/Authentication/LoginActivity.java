@@ -78,9 +78,9 @@ int uid;
     private void isCorrect(){
         name=uName.getText().toString();
         pass=password.getText().toString();
+        setPrefs();
 
-       String query="user_name='"+name+"' AND password='"+pass+"'";
-        String url="http://10.0.2.2/Project/findUser.php?query="+query;
+        String url="http://10.0.2.2/Project/findUserFromName.php?name="+name+"&password="+pass;
         Log.e("this", "isCorrect: "+url );
         JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override

@@ -95,7 +95,7 @@ String tables;
                 String foodSel=getFoodSelected();
                 getTables();        //gives table string
                 queue=Volley.newRequestQueue(NewOrder.this);
-                String url="";          //values with foodSel and tableSel
+                String url="http://10.0.2.2/Project/insertCook.php?foodSel="+foodSel+"&TableSel="+tables;          //values with foodSel and tableSel
                 JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -122,6 +122,8 @@ String tables;
             }
         });
         builder.create().show();
+        //insert data in the payment and choice
+
     }
     private void getTables(){
         StringBuilder builder=new StringBuilder(100);

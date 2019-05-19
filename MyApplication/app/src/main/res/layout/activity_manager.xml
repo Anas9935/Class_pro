@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:text="attendence"
         android:id="@+id/attendence"
+        android:visibility="gone"
         />
     <Button
         android:layout_width="wrap_content"

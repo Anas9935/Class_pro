@@ -10,9 +10,20 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.myapplication.R;
 import com.example.myapplication.objects.paymentObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -140,8 +151,31 @@ public class recAdapter extends ArrayAdapter<paymentObject> {
 
         return view;
     }
-    private void saveState(paymentObject obj){
+    private void saveState(paymentObject obj) {
         //TODO update the object wehre _id=obj.getid;
+        final RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url="http://10.0.2.2/Project/updatePayment.php?newmode="+obj.getMode()+"&newStatus="+obj.getStatus()+"&_id="+obj.getId();          //getting name of the food item where _id=foodId[i];
+        JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                //    Log.e("this", "onResponse: "+response.toString() );
+                try {
+                    JSONObject base=new JSONObject(response.toString());
+                    String message=base.getString("message");
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
+                queue.stop();
+            }
+        });
+
+        queue.add(jreq);
     }
 }

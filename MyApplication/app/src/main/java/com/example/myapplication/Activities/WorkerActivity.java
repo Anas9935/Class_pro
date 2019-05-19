@@ -75,35 +75,10 @@ Button new_order,normal;
             }
         });
         populateView();
-        populateOtherView();
-    }
-    private void populateOtherView(){
-        String url="";//for reciving from the attendence table where _uid=?
-        JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONObject base=new JSONObject(response.toString());
-                    JSONArray array=base.getJSONArray("data");
-                    int pres=array.getJSONObject(0).getInt("presence");
-                    int abs=array.getJSONObject(0).getInt("absent");
-                    p.setText(""+pres);
-                    a.setText(""+abs);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
-                queue.stop();
-            }
-        });
-        queue.add(jreq);
     }
     private void populateView(){
         String url="http://10.0.2.2/Project/findStaffusingJoin.php?query="+uid;//for reciving from the staff table where _uid=?
+        Log.e("this", "populateView: "+url );
         JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {

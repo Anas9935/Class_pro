@@ -71,7 +71,7 @@ private ArrayList<menuitem> list;
 private MenuRecyclerView adapter;
 View view,bill_view;
 tableFragment fragmentBuilder;
-Spinner timeSpin;
+Spinner timeSpin,modespin;
 int timeSel=-1;
 String tables;
 boolean[] isSel=new boolean[9];
@@ -81,6 +81,7 @@ long dateStamp;
 TextView test;
 ArrayList<Integer> tableSel;
 Button[] btn=new Button[9];
+int mode;
 
     private static final int WIDTH = 300;
 
@@ -123,6 +124,7 @@ Button[] btn=new Button[9];
         //--------------------------------------------------------------------------------------
         final LinearLayout menull=view.findViewById(R.id.menu_ll);
         timeSpin=view.findViewById(R.id.menu_time_slot);
+        modespin=view.findViewById(R.id.menu_payment_mode);
         final TextView dateView=view.findViewById(R.id.menu_dateEV);
         dateView.requestFocus();
         ImageView chooseDate=view.findViewById(R.id.menu_choose_date);
@@ -159,11 +161,13 @@ Button[] btn=new Button[9];
         final String selFood=getFoodSelected();
         builder.setView(view);
         setupSpinners();
+        setupmodeSpinner();
         //------------------------------------------------------------------------------------
         builder.setPositiveButton("Proceed for Payment", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //insertion the data in the payment table and choice table
+                Log.e("this", "onClick: "+tables );
                 int noP=Integer.parseInt(people.getText().toString());
                 if(timeSel==-1){
                     Toast.makeText(MenuActivity.this,"Time slot is not selected",Toast.LENGTH_LONG).show();
@@ -177,7 +181,7 @@ Button[] btn=new Button[9];
                     }else{
                         //inserting the data in choicewith datestamp
                         queue=Volley.newRequestQueue(MenuActivity.this);
-                       String url="http://10.0.2.2/Project/?_uid="+uid+"&people="+noP+"&food_sel="+selFood+"&time_slot="+timeSel+"&date_sel="+dateStamp+"&table_sel="+tables;
+                       String url="http://10.0.2.2/Project/insertChoice.php?_uid="+uid+"&people="+noP+"&food_sel="+selFood+"&time_slot="+timeSel+"&date_sel="+dateStamp+"&table_sel="+tables;
                         JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
@@ -199,6 +203,41 @@ Button[] btn=new Button[9];
                             }
                         });
                         queue.add(jreq);
+
+                        int status;
+                        switch (mode){
+                            case 0:{status=0;        //for selecting cash
+                                break;
+                            }
+                            default:status=1;
+                        }
+
+
+                        //inserting data into payment table
+                        queue=Volley.newRequestQueue(MenuActivity.this);
+                        long time=System.currentTimeMillis()/1000;
+                        String url1="http://10.0.2.2/Project/insertPayment.php?_uid="+uid+"&tot_amt="+totAmt+"&mode="+mode+"&status="+status+"&pTime="+time;
+                        JsonObjectRequest jreq1=new JsonObjectRequest(Request.Method.GET, url1, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    JSONObject base=new JSONObject(response.toString());
+                                    //String message=base.getString("message");
+                                   // Toast.makeText(MenuActivity.this,"Your Table is booked Successfully.", Toast.LENGTH_SHORT).show();
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(MenuActivity.this,"Password Mismatch",Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
+                                queue.stop();
+                            }
+                        });
+                        queue.add(jreq1);
                     }
 
                 }
@@ -318,6 +357,7 @@ Button[] btn=new Button[9];
         for( int i=0;i<9;i++){
             btn[i].setEnabled(true);
             btn[i].setBackgroundColor(Color.rgb(127,247,255));
+            tables=null;
         }
     }
     private void setupSpinners(){
@@ -342,6 +382,23 @@ Button[] btn=new Button[9];
                     timeSel=-1;
                 }
             });
+    }
+    private void setupmodeSpinner(){
+        final ArrayAdapter<CharSequence> des=ArrayAdapter.createFromResource(this,R.array.paymentMode,android.R.layout.simple_spinner_item);
+        des.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        modespin.setAdapter(des);
+        modespin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+               mode=position;
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+               mode=0;
+            }
+        });
     }
     private void popMenu(){
 
@@ -438,6 +495,5 @@ Button[] btn=new Button[9];
         bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
         return bitmap;
     }
-
     //TODO 1: resolve the Image in the database problem
 }

@@ -45,7 +45,7 @@ public class cookAdapter extends ArrayAdapter<cookObject> {
         if(view==null){
             view= LayoutInflater.from(getContext()).inflate(R.layout.cook_todo,parent,false);
         }
-        cookObject current=list.get(position);
+        final cookObject current=list.get(position);
         TextView tables,foodList,QuantityList;
         Button done;
         tables=view.findViewById(R.id.cook_tables);
@@ -57,7 +57,7 @@ public class cookAdapter extends ArrayAdapter<cookObject> {
 
         menu=new ArrayList<>();
         getmenuitems(current.getFoodItem(),foodList,QuantityList);
-
+        Log.e("this", "getView: "+current.getFoodItem() );
 
         done.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +65,7 @@ public class cookAdapter extends ArrayAdapter<cookObject> {
                 callStaff();
                 //TODO delete the entry from cooktable where _id=current.getID()
                final RequestQueue queue=Volley.newRequestQueue(getContext());
-                String url="";
+                String url="http://10.0.2.2/Project/delete_cook.php?_id="+current.getId();
                 JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -87,23 +87,33 @@ public class cookAdapter extends ArrayAdapter<cookObject> {
                 });
 
                 queue.add(jreq);
-
+                this.notify();
             }
-        });
+        }
+        );
 
 
 
         return view;
     }
     private void getmenuitems(String foods, final TextView foodTv, TextView QuanTV){
-        int[] foodlist=new int[5];
-        int[] quantity=new int[3];
 
+        ArrayList<Integer> foodlist=new ArrayList<>();
+        ArrayList<Integer> quantity=new ArrayList<>();
 
+        String[] items=foods.split(" ");
+        for(int i=0;i<items.length;i++)
+        {
+            CharSequence quan=items[i].subSequence(items[i].indexOf("(")+1,items[i].indexOf(")"));
+            quantity.add(Integer.parseInt((String) quan));
+
+            String food=items[i].substring(0,items[i].indexOf("("));
+            foodlist.add(Integer.parseInt(food));
+        }
 
         final RequestQueue queue=Volley.newRequestQueue(getContext());
-        for(int i=0;i<foodlist.length;i++){
-            String url="";          //getting name of the food item where _id=foodId[i];
+        for(int i=0;i<foodlist.size();i++){
+            String url="http://10.0.2.2/Project/findFood.php?query="+foodlist.get(i);          //getting name of the food item where _id=foodId[i];
             JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -128,10 +138,10 @@ public class cookAdapter extends ArrayAdapter<cookObject> {
             });
 
             queue.add(jreq);
-            QuanTV.setText(quantity[i]+"\n");
+            QuanTV.append(quantity.get(i)+"\n");
         }
     }
     private void callStaff(){
-
+        Toast.makeText(getContext(), "Staff Called", Toast.LENGTH_SHORT).show();
     }
 }

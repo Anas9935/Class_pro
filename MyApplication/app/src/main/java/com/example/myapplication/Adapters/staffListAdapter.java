@@ -121,11 +121,9 @@ public class staffListAdapter extends ArrayAdapter<StaffObject> {
                         long currentTime=System.currentTimeMillis()/1000;
                         //TODO update attendence table where _uid=? setting salary_upto_now =0;
 
-                        //insert data in payment table setting amount=salUptoNow[0] where _uid=uid witth mode paytm
                         queue=Volley.newRequestQueue(getContext());
-                        //TODO inserting date in payment table with uid=managerId,tot_amt=salUptoNow[0],mode=0,status=Paid,pTime=currentTime
-                        String url="http://10.0.2.2/Project/....php/?";
-                        JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                        String url1="http://10.0.2.2/Project/updateAttendencePres.php?_id="+current.getId()+"&sal="+0+"&pres="+0;
+                        JsonObjectRequest jreq1=new JsonObjectRequest(Request.Method.GET, url1, null, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try {
@@ -144,7 +142,30 @@ public class staffListAdapter extends ArrayAdapter<StaffObject> {
                             }
                         });
 
-                        queue.add(jreq);
+                        queue.add(jreq1);
+
+                        //TODO inserting date in payment table with uid=managerId,tot_amt=salUptoNow[0],mode=0,status=Paid,pTime=currentTime
+                        String url2="http://10.0.2.2/Project/insertPayment.php?_uid="+1+"&tot_amt="+salUptoNow[0]+"&mode="+0+"&status="+1+"&pTime="+currentTime;
+                        JsonObjectRequest jreq2=new JsonObjectRequest(Request.Method.GET, url2, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    JSONObject base=new JSONObject(response.toString());
+                                    String message=base.getString("message");
+                                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
+                                queue.stop();
+                            }
+                        });
+
+                        queue.add(jreq2);
 
 
                     }

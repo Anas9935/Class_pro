@@ -163,7 +163,7 @@ long mdoj;
         int sl=Integer.parseInt(salary.getText().toString());
 //TODO insert in the Stafftable with values (_uid,fullname,contact1,contact2,add1,add2,DOJ,salary)
     queue=Volley.newRequestQueue(addStaff.this);
-    String url="http://10.0.2.2/Project/?_uid="+uid+"&full_name="+nm+"&contact1="+ph1+"$contact2="+ph2+"&address1="+ad1+"&address2="+ad2+"&DOJ="+mdoj+"&salary="+sl;
+    String url="http://10.0.2.2/Project/insertStaff.php?_uid="+uid+"&full_name="+nm+"&contact1="+ph1+"&contact2="+ph2+"&address1="+ad1+"&address2="+ad2+"&DOJ="+mdoj+"&Salary="+sl;
     JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
@@ -188,10 +188,32 @@ long mdoj;
 
 //    Toast.makeText(this, "Staff entered", Toast.LENGTH_SHORT).show();
 //TODO update the user table with desig =designamtion where _uid=uid
+        queue=Volley.newRequestQueue(addStaff.this);
+        String url4="http://10.0.2.2/Project/updateUserDes.php?newVal="+designation+"&_uid="+uid;
+        JsonObjectRequest jreq4=new JsonObjectRequest(Request.Method.GET, url4, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONObject base=new JSONObject(response.toString());
+                    String message=base.getString("message");
+                    // Toast.makeText(addStaff.this, message, Toast.LENGTH_SHORT).show();
 
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(addStaff.this,"Password Mismatch",Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("error", "onErrorResponse: Eroorr"+error.getMessage() );
+                queue.stop();
+            }
+        });
+        queue.add(jreq4);
 //TODO inserting in the attendence table with data (uid,presence(0),salary_uptonow(0),absent(0))
 queue=Volley.newRequestQueue(addStaff.this);
-    String url3="http://10.0.2.2/Project/?_uid="+uid+"&presence="+"0"+"&salary_upto_now="+"0"+"&absent="+"0";
+    String url3="http://10.0.2.2/Project/insertAttendence.php?_uid="+uid+"&presence="+"0"+"&salary_upto_now="+"0"+"&absent="+"0";
     JsonObjectRequest jreq3=new JsonObjectRequest(Request.Method.GET, url3, null, new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {

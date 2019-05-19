@@ -57,7 +57,7 @@ TextView n,u,cn1,cn2,ad1,ad2,a3,dj,prs,ab,salup;
     }
     private void populateView(){
 
-    String url="";    //Select * from staff table where _uid=uid
+    String url="http://10.0.2.2/Project/findStaffusingJoin.php?query="+uid;    //Select * from staff table where _uid=uid
         queue= Volley.newRequestQueue(ProfileActivity.this);
         JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -73,6 +73,13 @@ TextView n,u,cn1,cn2,ad1,ad2,a3,dj,prs,ab,salup;
                     con1=curr.getLong("contact1");
                     con2=curr.getLong("contact2");
                     date=curr.getLong("DOJ");
+                    int pre=array.getJSONObject(0).getInt("presence");
+                    int abs=array.getJSONObject(0).getInt("absent");
+                    int sa=array.getJSONObject(0).getInt("salary_upto_now");
+                    prs.append(String.valueOf(pre));
+                    ab.append(String.valueOf(abs));
+                    salup.append(String.valueOf(sa));
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Toast.makeText(ProfileActivity.this,"Password Mismatch",Toast.LENGTH_LONG).show();
@@ -86,8 +93,8 @@ TextView n,u,cn1,cn2,ad1,ad2,a3,dj,prs,ab,salup;
             }
         });
         queue.add(jreq);
-        populateAttendence();
-    }
+      //  populateAttendence();
+    }/*
     private void populateAttendence(){
             String url="";          //search for attendence from  attendenceTable where uid=uid
             JsonObjectRequest jreq=new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -116,5 +123,6 @@ TextView n,u,cn1,cn2,ad1,ad2,a3,dj,prs,ab,salup;
             });
             queue.add(jreq);
         }
+        */
     }
 
